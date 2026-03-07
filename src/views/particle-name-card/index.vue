@@ -264,27 +264,62 @@ function resizeCanvas() {
 function drawConstellationLines(c: CanvasRenderingContext2D) {
   const maxDist = 50
   const maxDistSq = maxDist * maxDist
+  const cellSize = maxDist
   const len = particles.length
 
-  // Only check a subset for performance
+  // Build spatial grid to avoid O(n²) checks
+  const grid = new Map<string, number[]>()
   const step = len > 5000 ? 3 : len > 2000 ? 2 : 1
 
   for (let i = 0; i < len; i += step) {
-    const p1 = particles[i]!
-    for (let j = i + step; j < len; j += step) {
-      const p2 = particles[j]!
-      const dx = p1.x - p2.x
-      const dy = p1.y - p2.y
-      const distSq = dx * dx + dy * dy
+    const p = particles[i]!
+    const cx = Math.floor(p.x / cellSize)
+    const cy = Math.floor(p.y / cellSize)
+    const key = `${cx},${cy}`
+    const cell = grid.get(key)
+    if (cell) cell.push(i)
+    else grid.set(key, [i])
+  }
 
-      if (distSq < maxDistSq) {
-        const alpha = (1 - distSq / maxDistSq) * 0.12
-        c.beginPath()
-        c.moveTo(p1.x, p1.y)
-        c.lineTo(p2.x, p2.y)
-        c.strokeStyle = getParticleColor((p1.hue + p2.hue) / 2, alpha)
-        c.lineWidth = 0.5
-        c.stroke()
+  c.lineWidth = 0.5
+
+  for (const [key, indices] of grid) {
+    const [cx, cy] = key.split(',').map(Number) as [number, number]
+
+    // Check this cell and 4 neighbors (right, bottom-left, bottom, bottom-right) to avoid duplicates
+    const neighborKeys = [
+      key,
+      `${cx + 1},${cy}`,
+      `${cx - 1},${cy + 1}`,
+      `${cx},${cy + 1}`,
+      `${cx + 1},${cy + 1}`,
+    ]
+
+    for (const nKey of neighborKeys) {
+      const nIndices = grid.get(nKey)
+      if (!nIndices) continue
+
+      const isSame = nKey === key
+      for (let a = 0; a < indices.length; a++) {
+        const i = indices[a]!
+        const p1 = particles[i]!
+        const startB = isSame ? a + 1 : 0
+        for (let b = startB; b < nIndices.length; b++) {
+          const j = nIndices[b]!
+          const p2 = particles[j]!
+          const dx = p1.x - p2.x
+          const dy = p1.y - p2.y
+          const distSq = dx * dx + dy * dy
+
+          if (distSq < maxDistSq) {
+            const alpha = (1 - distSq / maxDistSq) * 0.12
+            c.beginPath()
+            c.moveTo(p1.x, p1.y)
+            c.lineTo(p2.x, p2.y)
+            c.strokeStyle = getParticleColor((p1.hue + p2.hue) / 2, alpha)
+            c.stroke()
+          }
+        }
       }
     }
   }
