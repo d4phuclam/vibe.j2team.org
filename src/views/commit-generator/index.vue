@@ -94,7 +94,7 @@ const saveSettings = () => {
     <header class="max-w-4xl mx-auto flex justify-between items-center mb-12">
       <router-link
         to="/"
-        class="flex items-center gap-2 text-text-secondary hover:text-accent-coral transition-colors group"
+        class="flex items-center gap-2 text-text-secondary hover:text-accent-coral transition-colors group focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-coral/50 rounded touch-manipulation"
       >
         <Icon
           icon="fluent:arrow-left-24-filled"
@@ -107,7 +107,7 @@ const saveSettings = () => {
         <!-- Language Switcher -->
         <button
           @click="lang = lang === 'vi' ? 'en' : 'vi'"
-          class="border border-border-default px-2 py-1 text-[10px] font-display tracking-widest uppercase hover:border-accent-coral transition-colors rounded"
+          class="border border-border-default px-2 py-1 text-[10px] font-display tracking-widest uppercase hover:border-accent-coral transition-colors rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-coral/50 touch-manipulation"
         >
           {{ lang === 'vi' ? 'EN' : 'VI' }}
         </button>
@@ -124,7 +124,7 @@ const saveSettings = () => {
         </div>
         <button
           @click="showSettings = true"
-          class="p-2 rounded-xl bg-bg-surface border border-border-default hover:border-accent-coral transition-all hover:rotate-90 duration-500"
+          class="p-2 rounded-xl bg-bg-surface border border-border-default hover:border-accent-coral transition-all hover:rotate-90 duration-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-coral/50 touch-manipulation"
         >
           <Icon icon="fluent:settings-24-filled" class="text-xl" />
         </button>
@@ -172,7 +172,7 @@ const saveSettings = () => {
             <textarea
               v-model="taskDescription"
               :placeholder="t.placeholder_input"
-              class="w-full h-32 bg-bg-deep border border-border-default rounded-2xl p-5 text-text-primary focus:border-accent-coral focus:ring-1 focus:ring-accent-coral/20 outline-none transition-all resize-none font-medium placeholder:text-text-dim/50"
+              class="w-full h-32 bg-bg-deep border border-border-default rounded-2xl p-5 text-text-primary outline-none focus-visible:border-accent-coral focus-visible:ring-1 focus-visible:ring-accent-coral/20 transition-all resize-none font-medium placeholder:text-text-dim/50"
             ></textarea>
           </div>
 
@@ -190,7 +190,7 @@ const saveSettings = () => {
                 @click="!apiKey && slug === 'conventional' ? null : (selectedStyle = slug)"
                 :disabled="!apiKey && slug === 'conventional'"
                 :class="[
-                  'flex flex-col items-center gap-3 p-4 rounded-2xl border transition-all duration-300 group relative',
+                  'flex flex-col items-center gap-3 p-4 rounded-2xl border transition-all duration-300 group relative focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-coral/50 touch-manipulation',
                   selectedStyle === slug
                     ? 'bg-accent-coral border-accent-coral text-bg-deep shadow-lg shadow-accent-coral/20 scale-[1.02]'
                     : 'bg-bg-deep border-border-default hover:border-text-dim text-text-secondary',
@@ -231,7 +231,7 @@ const saveSettings = () => {
             <button
               @click="handleGenerate"
               :disabled="isLoading"
-              class="w-full py-5 rounded-2xl bg-text-primary text-bg-deep font-display font-black uppercase tracking-widest text-sm hover:bg-accent-coral hover:text-white transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3"
+              class="w-full py-5 rounded-2xl bg-text-primary text-bg-deep font-display font-black uppercase tracking-widest text-sm hover:bg-accent-coral hover:text-white transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-coral/50 touch-manipulation"
             >
               <Icon
                 v-if="isLoading"
@@ -260,7 +260,7 @@ const saveSettings = () => {
             @click="handleSanitize"
             v-if="selectedStyle !== 'conventional'"
             :disabled="isSanitizing"
-            class="group flex items-center gap-1.5 text-[10px] font-bold text-accent-sky hover:text-white transition-colors uppercase tracking-widest"
+            class="group flex items-center gap-1.5 text-[10px] font-bold text-accent-sky hover:text-white transition-colors uppercase tracking-widest px-1 py-0.5 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-sky/50 touch-manipulation"
           >
             <Icon icon="fluent:shield-checkmark-24-filled" class="text-sm" />
             <span>{{ t.btn_sanitize }}</span>
@@ -282,7 +282,7 @@ const saveSettings = () => {
             >
             <button
               @click="copyToClipboard"
-              class="w-full md:w-auto flex items-center justify-center gap-2 px-8 py-3 rounded-xl bg-accent-coral/10 hover:bg-accent-coral text-accent-coral hover:text-white transition-all text-xs font-bold uppercase tracking-widest border border-accent-coral/20"
+              class="w-full md:w-auto flex items-center justify-center gap-2 px-8 py-3 rounded-xl bg-accent-coral/10 hover:bg-accent-coral text-accent-coral hover:text-white transition-all text-xs font-bold uppercase tracking-widest border border-accent-coral/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-coral/50 touch-manipulation"
             >
               <Icon icon="fluent:copy-24-filled" />
               <span>{{ t.btn_copy }}</span>
@@ -341,8 +341,10 @@ const saveSettings = () => {
                 <input
                   v-model="tempApiKey"
                   type="password"
+                  autocomplete="off"
+                  spellcheck="false"
                   :placeholder="t.settings_placeholder"
-                  class="w-full bg-bg-deep border border-border-default rounded-xl p-4 pr-12 outline-none focus:border-accent-coral transition-colors font-mono"
+                  class="w-full bg-bg-deep border border-border-default rounded-xl p-4 pr-12 outline-none focus-visible:border-accent-coral focus-visible:ring-1 focus-visible:ring-accent-coral/20 transition-all font-mono"
                 />
                 <Icon
                   icon="fluent:key-24-filled"
@@ -356,7 +358,7 @@ const saveSettings = () => {
 
             <button
               @click="saveSettings"
-              class="w-full py-4 rounded-xl bg-accent-coral text-bg-deep font-display font-black uppercase tracking-widest text-xs hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-accent-coral/20"
+              class="w-full py-4 rounded-xl bg-accent-coral text-bg-deep font-display font-black uppercase tracking-widest text-xs hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-accent-coral/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-coral/50 touch-manipulation"
             >
               {{ t.settings_save }}
             </button>
