@@ -2,6 +2,7 @@
 import { RouterView, useRoute } from 'vue-router'
 import { useHead } from '@unhead/vue'
 import { computed } from 'vue'
+import ErrorBoundary from '@/components/ErrorBoundary.vue'
 
 const route = useRoute()
 
@@ -21,5 +22,9 @@ useHead({
 </script>
 
 <template>
-  <RouterView />
+  <RouterView v-slot="{ Component }">
+    <ErrorBoundary>
+      <component :is="Component" />
+    </ErrorBoundary>
+  </RouterView>
 </template>

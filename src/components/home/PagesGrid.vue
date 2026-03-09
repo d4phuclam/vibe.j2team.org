@@ -1,51 +1,32 @@
 <script setup lang="ts">
-import { ref, computed, onUnmounted, type Directive } from 'vue'
-import { useEventListener } from '@vueuse/core'
+import { ref, computed, type Directive } from 'vue'
+import { useEventListener, useIntersectionObserver } from '@vueuse/core'
 import { RouterLink, useRouter } from 'vue-router'
 import { Icon } from '@iconify/vue'
 import { pages } from '@/data/pages-loader'
 import { padIndex } from '@/data/homepage'
-import { categories } from '@/data/categories'
+import { categories, type CategoryId } from '@/data/categories'
 import FavoriteButton from '@/components/FavoriteButton.vue'
 
-let observer: IntersectionObserver | null = null
+const vAnimate: Directive<HTMLElement & { __stopObserve?: () => void }, string | undefined> = {
+  mounted(el, binding) {
+    if (binding.value) el.style.animationDelay = binding.value
+    el.style.opacity = '0'
 
-function getObserver(): IntersectionObserver {
-  if (!observer) {
-    observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            ;(entry.target as HTMLElement).classList.add('animate-fade-up')
-            observer!.unobserve(entry.target)
-          }
+    const { stop } = useIntersectionObserver(
+      el,
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          el.classList.add('animate-fade-up')
+          stop()
         }
       },
       { threshold: 0.1 },
     )
-  }
-  return observer
-}
-
-onUnmounted(() => {
-  observer?.disconnect()
-  observer = null
-})
-
-const vAnimate: Directive<HTMLElement, string | undefined> = {
-  mounted(el, binding) {
-    if (typeof IntersectionObserver === 'undefined') {
-      el.classList.add('animate-fade-up')
-      return
-    }
-    if (binding.value) {
-      el.style.animationDelay = binding.value
-    }
-    el.style.opacity = '0'
-    getObserver().observe(el)
+    el.__stopObserve = stop
   },
   unmounted(el) {
-    observer?.unobserve(el)
+    el.__stopObserve?.()
   },
 }
 
@@ -62,7 +43,7 @@ function normalize(str: string): string {
 }
 
 const searchQuery = ref('')
-const activeCategory = ref<string | null>(null)
+const activeCategory = ref<CategoryId | null>(null)
 
 const searchablePages = pages.map((p) => ({
   ...p,
@@ -94,7 +75,7 @@ const isFiltering = computed(() => {
   return searchQuery.value.trim() !== '' || activeCategory.value !== null
 })
 
-function toggleCategory(id: string) {
+function toggleCategory(id: CategoryId) {
   activeCategory.value = activeCategory.value === id ? null : id
 }
 
@@ -104,7 +85,7 @@ function clearFilters() {
 }
 
 const categoryCounts = computed(() => {
-  const counts: Record<string, number> = {}
+  const counts: Partial<Record<CategoryId, number>> = {}
   for (const page of pages) {
     if (page.category) {
       counts[page.category] = (counts[page.category] || 0) + 1
@@ -207,6 +188,7 @@ useEventListener(document, 'keydown', handleKeydown)
         </button>
         <button
           v-for="cat in categories"
+          v-show="categoryCounts[cat.id]"
           :key="cat.id"
           class="px-3 py-1.5 text-xs font-display tracking-wide border transition-colors duration-200"
           :class="
